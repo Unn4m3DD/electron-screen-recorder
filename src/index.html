@@ -1,12 +1,28 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Hello World!</title>
-    <link rel="stylesheet" href="index.css">
-  </head>
-  <body>
-    <h1>💖 Hello World!</h1>
-    <p>Welcome to your Electron application.</p>
-  </body>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <link rel="stylesheet" href="index.css">
+  <script defer src="render.js"></script>
+</head>
+
+<body>
+  <div id="select_popup_container" class="select_popup_container" onclick="close_modal()">
+    <div id="select_popup_loading">loading</div>
+    <div id="select_popup_menu" class="select_popup_menu"> </div>
+  </div>
+  <video id="video_canvas"></video>
+  <div class="buttons">
+    <div class="button_container">
+      <button class="start" id="start_button">Start</button>
+      <div style="width: 2vw;"></div>
+      <button class="stop" id="stop_button">Stop</button>
+    </div>
+    <hr>
+    <button class="select" id="select_button" onclick="get_video_sources()">Select</button>
+  </div>
+</body>
+
 </html>

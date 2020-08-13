@@ -1,6 +1,100 @@
+body * {
+  display: flex;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   margin: auto;
   max-width: 38rem;
   padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  flex-direction: column;
+}
+
+video {
+  width: 80vw;
+  height: 70vh;
+}
+
+.buttons {
+  width: 50vw;
+  flex-direction: column;
+  align-items: center;
+}
+
+.button_container {
+  flex: 1;
+  margin-top: 20px;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+button {
+  width: 100px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  border-width: 0;
+}
+
+.start {
+  background-color: #4CAF50;
+}
+
+.stop {
+  background-color: #f44336;
+}
+
+.select {
+  background-color: #008CBA;
+}
+
+.select_popup_container {
+  display: none;
+  position: fixed;
+  background-color: #ffffff77;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.select_popup_menu {
+  display: none;
+  position: fixed;
+  background-color: #fff;
+  border: 1px black solid;
+  width: 60%;
+  height: 70%;
+  z-index: 2;
+  left: 20%;
+  top: 15%;
+  overflow: auto;
+  flex-direction: column;
+}
+
+.thumbnail_container {
+  flex-direction: column;
+  padding: 3px;
+  flex: .33
+}
+
+.thumbnail_text {
+  background-color: #ecebeb;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  text-align: center;
+}
+
+.thumbnail_image {
+  height: 19vh;
 }
