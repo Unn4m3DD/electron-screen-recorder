@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,7 +35,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+exports.__esModule = true;
+var electron_1 = require("electron");
+var fs_1 = require("fs");
+var dialog = electron_1.remote.dialog;
+var media_recorder;
+var recordedChunks = [];
 var video_canvas = document.getElementById("video_canvas");
 var start_button = document.getElementById("start_button");
 var stop_button = document.getElementById("stop_button");
@@ -42,14 +48,12 @@ var select_button = document.getElementById("select_button");
 var select_popup_container = document.getElementById("select_popup_container");
 var select_popup_menu = document.getElementById("select_popup_menu");
 var select_popup_loading = document.getElementById("select_popup_loading");
-var desktop_capturer = require("electron").desktopCapturer;
-var menu = require("electron").remote.Menu;
-var select_source = function (source) { return __awaiter(_this, void 0, void 0, function () {
+var select_source = function (source) { return __awaiter(void 0, void 0, void 0, function () {
     var stream;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                select_button.innerText = source.name;
+                select_button.innerText = source.name.slice(0, 13);
                 return [4 /*yield*/, navigator.mediaDevices.getUserMedia({
                         audio: false,
                         video: {
@@ -63,11 +67,15 @@ var select_source = function (source) { return __awaiter(_this, void 0, void 0, 
                 stream = _a.sent();
                 video_canvas.srcObject = stream;
                 video_canvas.play();
+                close_modal();
+                media_recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+                media_recorder.ondataavailable = handleDataAvailable;
+                media_recorder.onstop = handleStop;
                 return [2 /*return*/];
         }
     });
 }); };
-var get_video_sources = function () { return __awaiter(_this, void 0, void 0, function () {
+var get_video_sources = function () { return __awaiter(void 0, void 0, void 0, function () {
     var interval, sources;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -75,18 +83,24 @@ var get_video_sources = function () { return __awaiter(_this, void 0, void 0, fu
                 select_popup_container.style.display = "flex";
                 select_popup_loading.innerText = "loading";
                 interval = setInterval(function () { select_popup_loading.innerText += "."; }, 400);
-                return [4 /*yield*/, desktop_capturer.getSources({
+                return [4 /*yield*/, electron_1.desktopCapturer.getSources({
                         types: ["window", "screen"]
                     })];
             case 1:
                 sources = _a.sent();
                 clearInterval(interval);
-                source = group(source, 3);
+                sources = group(sources, 3);
                 select_popup_menu.innerHTML =
                     sources.map(function (source) {
-                        var innerHTML = source.map(function (item) { return ("\n      <div class=\"thumbnail_container\">\n        <div class=\"thumbnail_text\">" + item.name + "</div>\n        <img class=\"thumbnail_image\"src=\"" + item.thumbnail.toDataURL() + "\" />\n      </div>"); });
+                        var innerHTML = source.map(function (item) { return ("\n      <div class=\"thumbnail_container\" id=\"" + item.name + "\">\n        <div class=\"thumbnail_text\">" + item.name + "</div>\n        <img class=\"thumbnail_image\"src=\"" + item.thumbnail.toDataURL() + "\" />\n      </div>"); }).join("");
                         return "<div>" + innerHTML + "</div>";
                     }).join("");
+                sources.forEach(function (element) {
+                    element.forEach(function (source) {
+                        if (document.getElementById(source.name))
+                            document.getElementById(source.name).onclick = function () { return select_source(source); };
+                    });
+                });
                 select_popup_menu.style.display = "flex";
                 return [2 /*return*/];
         }
@@ -98,11 +112,50 @@ var close_modal = function () {
 };
 function group(array, count) {
     var result = [];
-    for (var i = 0; i < array.count; i++) {
+    for (var i = 0; i < array.length; i++) {
         if (i % count == 0)
             result.push([]);
         result[result.length - 1].push(array[i]);
     }
     return result;
+}
+start_button.onclick = function (event) {
+    media_recorder.start();
+    start_button.innerText = 'Recording';
+};
+stop_button.onclick = function (e) {
+    media_recorder.stop();
+    start_button.classList.remove('is-danger');
+    start_button.innerText = 'Start';
+};
+function handleDataAvailable(e) {
+    recordedChunks.push(e.data);
+}
+function handleStop(e) {
+    return __awaiter(this, void 0, void 0, function () {
+        var blob, buffer, _a, _b, filePath;
+        return __generator(this, function (_c) {
+            switch (_c.label) {
+                case 0:
+                    blob = new Blob(recordedChunks, {
+                        type: 'video/webm; codecs=vp9'
+                    });
+                    _b = (_a = Buffer).from;
+                    return [4 /*yield*/, blob.arrayBuffer()];
+                case 1:
+                    buffer = _b.apply(_a, [_c.sent()]);
+                    return [4 /*yield*/, dialog.showSaveDialog({
+                            buttonLabel: 'Save video',
+                            defaultPath: "vid-" + Date.now() + ".webm"
+                        })];
+                case 2:
+                    filePath = (_c.sent()).filePath;
+                    if (filePath) {
+                        fs_1.writeFile(filePath, buffer, function () { });
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
 }
 //# sourceMappingURL=render.js.map

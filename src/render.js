@@ -60,7 +60,8 @@ const get_video_sources = async () => {
     }).join("")
   sources.forEach(element => {
     element.forEach((source) => {
-      document.getElementById(source.name).onclick = () => select_source(source)
+      if (document.getElementById(source.name))
+        document.getElementById(source.name).onclick = () => select_source(source)
     })
   });
   select_popup_menu.style.display = "flex";
